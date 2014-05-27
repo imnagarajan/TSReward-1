@@ -93,18 +93,18 @@ namespace TSREWARD
                             for (int i = 0; i < config.OnRewardClaimMessage.Text.Length; i++)
                                 args.Player.SendMessage(config.OnRewardClaimMessage.Text[i], config.OnRewardClaimMessage.GetColor());
 
-                            //if (config.UsingSeconomy)
-                            {
-                                EconomyPlayer Server = SEconomyPlugin.GetEconomyPlayerSafe(TSServerPlayer.Server.UserID);
-                                Server.BankAccount.TransferToAsync(args.Player.Index, config.SEconomyReward, config.AnnounceOnReceive ? BankAccountTransferOptions.AnnounceToReceiver : BankAccountTransferOptions.SuppressDefaultAnnounceMessages, "voting on terraria-servers.com", "Voted on terraria-servers.com");
-                                SetAsClaimed(args.Player.Name);
-                            }
+                            EconomyPlayer Server = SEconomyPlugin.GetEconomyPlayerSafe(TSServerPlayer.Server.UserID);
+                            Server.BankAccount.TransferToAsync(args.Player.Index, config.SEconomyReward, config.AnnounceOnReceive ? BankAccountTransferOptions.AnnounceToReceiver : BankAccountTransferOptions.SuppressDefaultAnnounceMessages, "voting on terraria-servers.com", "Voted on terraria-servers.com");
+                            SetAsClaimed(args.Player.Name);
+
+                            for(int i = 0; i < config.Commands.Length;i++)
+                                Commands.HandleCommand(TSPlayer.Server, config.Commands[i].Replace("%playername%", args.Player.Name));
                             return;
                     }
                 });
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
-            
+
         }
 
         public Response CheckVote(string Username)
@@ -128,17 +128,6 @@ namespace TSREWARD
             VotedNotClaimed = 1,
             VotedAndClaimed = 2,
             Error=3
-        }
-
-        public class RewardItem
-        {
-            public int Id;
-            public int Amount;
-            public RewardItem(int id, int amount)
-            {
-                Id = id;
-                Amount = amount;
-            }
         }
 
         public class Clr
@@ -172,11 +161,8 @@ namespace TSREWARD
         public class Config
         {
             public string ServerKey = "ServerKeyGoesHere";
-            //public bool UsingSeconomy = false;
             public int SEconomyReward = 1000;
             public bool AnnounceOnReceive = true;
-            /*public bool GiveRewardItems = false;
-            public RewardItem[] RewardItems = new RewardItem[] { new RewardItem(5, 1), new RewardItem(6, 1) };*/
             public Message VoteNotFoundMessage = new Message(new string[]{
                 "Vote not found!",
                 "If you haven't voted yet, please go to terraria-servers.com and",
@@ -192,6 +178,9 @@ namespace TSREWARD
                 "Vote on terraria-servers.com and receive 1000 coins!",
                 "After voting you can use the command /reward!"
             });
+            public string[] Commands = new string[]{ 
+                "/heal %playername%", 
+                "/firework %playername%"};
         }
 
         private static void CreateConfig()
