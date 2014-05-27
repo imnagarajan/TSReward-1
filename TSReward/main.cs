@@ -163,10 +163,13 @@ namespace TSREWARD
             public string ServerKey = "ServerKeyGoesHere";
             public int SEconomyReward = 1000;
             public bool AnnounceOnReceive = true;
+            public string[] Commands = new string[]{ 
+                "/heal %playername%", 
+                "/firework %playername%"};
             public Message VoteNotFoundMessage = new Message(new string[]{
                 "Vote not found!",
-                "If you haven't voted yet, please go to terraria-servers.com and",
-                "vote for the server to receive ingame rewards!"
+                "If you haven't voted yet, please go to terraria-servers.com ",
+                "and vote for the server to receive ingame rewards!"
             });
             public Message OnRewardClaimMessage = new Message(new string[] {
                 "Thank you for voting on terraria-servers.com",
@@ -178,9 +181,6 @@ namespace TSREWARD
                 "Vote on terraria-servers.com and receive 1000 coins!",
                 "After voting you can use the command /reward!"
             });
-            public string[] Commands = new string[]{ 
-                "/heal %playername%", 
-                "/firework %playername%"};
         }
 
         private static void CreateConfig()
