@@ -168,7 +168,7 @@ namespace TSREWARD
                 "/firework %playername%"};
             public Message VoteNotFoundMessage = new Message(new string[]{
                 "Vote not found!",
-                "If you haven't voted yet, please go to terraria-servers.com ",
+                "If you haven't voted yet, please go to terraria-servers.com",
                 "and vote for the server to receive ingame rewards!"
             });
             public Message OnRewardClaimMessage = new Message(new string[] {
