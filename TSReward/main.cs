@@ -39,7 +39,7 @@ namespace TSREWARD
 
         public override void Initialize()
         {
-            Commands.ChatCommands.Add(new Command(Reward, "reward"));
+            Commands.ChatCommands.Add(new Command(Reward, "reward") { AllowServer = false });
             Commands.ChatCommands.Add(new Command("tsreward.reload", Reload_Config, "tsreload"));
             ReadConfig();
             Timer.Interval = 1000 * config.IntervalInSeconds;
@@ -78,9 +78,11 @@ namespace TSREWARD
                 {
                     switch (CheckVote(args.Player.Name))
                     {
+                        case Response.InvalidServerKey:
+                            args.Player.SendErrorMessage("The server key is incorrect! Please contact and administrator.");
+                            return;
                         case Response.Error:
-                            args.Player.SendErrorMessage("There was an issue reading your vote, this is either because");
-                            args.Player.SendErrorMessage("the server key is incorrect or terraria-servers.com is offline!");
+                            args.Player.SendErrorMessage("There was an error reading your vote on terraria-servers.com!");
                             return;
                         case Response.NotFound:
                             for (int i = 0; i < config.VoteNotFoundMessage.Text.Length; i++)
@@ -111,7 +113,10 @@ namespace TSREWARD
         {
             try
             {
-                int I = int.Parse(wc.DownloadString(string.Format("http://terraria-servers.com/api/?object=votes&element=claim&key={0}&username={1}", config.ServerKey, Username)));
+                string Res = wc.DownloadString(string.Format("http://terraria-servers.com/api/?object=votes&element=claim&key={0}&username={1}", config.ServerKey, Username));
+                if (Res.Contains("incorrect server key"))
+                    return Response.InvalidServerKey;
+                int I = int.Parse(Res);
                 return (Response)I;
             }
             catch { return Response.Error; }
@@ -127,7 +132,8 @@ namespace TSREWARD
             NotFound = 0,
             VotedNotClaimed = 1,
             VotedAndClaimed = 2,
-            Error=3
+            InvalidServerKey=3,
+            Error=4
         }
 
         public class Clr
