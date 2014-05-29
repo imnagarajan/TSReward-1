@@ -116,8 +116,8 @@ namespace TSREWARD
                 string Res = wc.DownloadString(string.Format("http://terraria-servers.com/api/?object=votes&element=claim&key={0}&username={1}", config.ServerKey, Username));
                 if (Res.Contains("incorrect server key"))
                     return Response.InvalidServerKey;
-                int I = int.Parse(Res);
-                return (Response)I;
+                else
+                    return (Response)int.Parse(Res);
             }
             catch { return Response.Error; }
         }
