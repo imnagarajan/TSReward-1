@@ -95,12 +95,14 @@ namespace TSREWARD
                             for (int i = 0; i < config.OnRewardClaimMessage.Text.Length; i++)
                                 args.Player.SendMessage(config.OnRewardClaimMessage.Text[i], config.OnRewardClaimMessage.GetColor());
 
-                            EconomyPlayer Server = SEconomyPlugin.GetEconomyPlayerSafe(TSServerPlayer.Server.UserID);
-                            Server.BankAccount.TransferToAsync(args.Player.Index, config.SEconomyReward, config.AnnounceOnReceive ? BankAccountTransferOptions.AnnounceToReceiver : BankAccountTransferOptions.SuppressDefaultAnnounceMessages, "voting on terraria-servers.com", "Voted on terraria-servers.com");
-                            SetAsClaimed(args.Player.Name);
+                            if (SetAsClaimed(args.Player.Name))
+                            {
+                                EconomyPlayer Server = SEconomyPlugin.GetEconomyPlayerSafe(TSServerPlayer.Server.UserID);
+                                Server.BankAccount.TransferToAsync(args.Player.Index, config.SEconomyReward, config.AnnounceOnReceive ? BankAccountTransferOptions.AnnounceToReceiver : BankAccountTransferOptions.SuppressDefaultAnnounceMessages, "voting on terraria-servers.com", "Voted on terraria-servers.com");
 
-                            for(int i = 0; i < config.Commands.Length;i++)
-                                Commands.HandleCommand(TSPlayer.Server, config.Commands[i].Replace("%playername%", args.Player.Name));
+                                for (int i = 0; i < config.Commands.Length; i++)
+                                    Commands.HandleCommand(TSPlayer.Server, config.Commands[i].Replace("%playername%", args.Player.Name));
+                            }
                             return;
                     }
                 });
@@ -122,9 +124,9 @@ namespace TSREWARD
             catch { return Response.Error; }
         }
 
-        public void SetAsClaimed(string Username)
+        public bool SetAsClaimed(string Username)
         {
-            wc.DownloadString(string.Format("http://terraria-servers.com/api/?action=post&object=votes&element=claim&key={0}&username={1}", config.ServerKey, Username));
+            return wc.DownloadString(string.Format("http://terraria-servers.com/api/?action=post&object=votes&element=claim&key={0}&username={1}", config.ServerKey, Username)) == "1";
         }
 
         public enum Response
@@ -132,8 +134,8 @@ namespace TSREWARD
             NotFound = 0,
             VotedNotClaimed = 1,
             VotedAndClaimed = 2,
-            InvalidServerKey=3,
-            Error=4
+            InvalidServerKey = 3,
+            Error = 4
         }
 
         public class Clr
@@ -156,7 +158,7 @@ namespace TSREWARD
             public Message(string[] text)
             {
                 Text = text;
-                Color = new Clr(40,160,240);
+                Color = new Clr(40, 160, 240);
             }
             public Color GetColor()
             {
