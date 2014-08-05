@@ -8,7 +8,6 @@ using System.IO;
 using Newtonsoft.Json;
 using Wolfje.Plugins.SEconomy;
 using Wolfje.Plugins.SEconomy.Journal;
-using Wolfje.Plugins.SEconomy.Economy;
 using System.Threading;
 
 namespace TSREWARD
@@ -97,11 +96,15 @@ namespace TSREWARD
 
                             if (SetAsClaimed(args.Player.Name))
                             {
-                                EconomyPlayer Server = SEconomyPlugin.GetEconomyPlayerSafe(TSServerPlayer.Server.UserID);
-                                Server.BankAccount.TransferToAsync(args.Player.Index, config.SEconomyReward, config.AnnounceOnReceive ? BankAccountTransferOptions.AnnounceToReceiver : BankAccountTransferOptions.SuppressDefaultAnnounceMessages, "voting on terraria-servers.com", "Voted on terraria-servers.com");
+                                if (SEconomyPlugin.Instance != null)
+                                {
+                                    IBankAccount Server = SEconomyPlugin.Instance.GetBankAccount(TSServerPlayer.Server.UserID);
+                                    IBankAccount Player = SEconomyPlugin.Instance.GetBankAccount(args.Player.Index);
+                                    Server.TransferToAsync(Player, config.SEconomyReward, config.AnnounceOnReceive ? BankAccountTransferOptions.AnnounceToReceiver : BankAccountTransferOptions.SuppressDefaultAnnounceMessages, "voting on terraria-servers.com", "Voted on terraria-servers.com");
 
-                                for (int i = 0; i < config.Commands.Length; i++)
-                                    Commands.HandleCommand(TSPlayer.Server, config.Commands[i].Replace("%playername%", args.Player.Name));
+                                    for (int i = 0; i < config.Commands.Length; i++)
+                                        Commands.HandleCommand(TSPlayer.Server, config.Commands[i].Replace("%playername%", args.Player.Name));
+                                }
                             }
                             return;
                     }
