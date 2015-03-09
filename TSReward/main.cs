@@ -55,7 +55,7 @@ namespace TSREWARD
         public TSReward(Main game)
             : base(game)
         {
-            Order = -1;
+            Order = 0;
         }
 
         protected override void Dispose(bool disposing)
