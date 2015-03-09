@@ -212,7 +212,7 @@ namespace TSREWARD
             }
             catch (Exception ex)
             {
-                Log.ConsoleError(ex.Message);
+                TShock.Log.ConsoleError(ex.ToString());
                 config = new Config();
             }
         }
@@ -237,14 +237,14 @@ namespace TSREWARD
                 }
                 else
                 {
-                    Log.ConsoleError("TSReward config not found. Creating new one...");
+                    TShock.Log.ConsoleError("TSReward config not found. Creating new one...");
                     CreateConfig();
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Log.ConsoleError(ex.Message);
+                TShock.Log.ConsoleError(ex.Message);
             }
             return false;
         }
