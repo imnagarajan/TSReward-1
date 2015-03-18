@@ -78,7 +78,7 @@ namespace TSREWARD
                     switch (CheckVote(args.Player.Name))
                     {
                         case Response.InvalidServerKey:
-                            args.Player.SendErrorMessage("The server key is incorrect! Please contact and administrator.");
+                            args.Player.SendErrorMessage("The server key is incorrect! Please contact an administrator.");
                             return;
                         case Response.Error:
                             args.Player.SendErrorMessage("There was an error reading your vote on terraria-servers.com!");
