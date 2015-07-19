@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace TSREWARD
 {
-    [ApiVersion(1, 17)]
+    [ApiVersion(1, 19)]
     public class TSReward : TerrariaPlugin
     {
         public static Config config;

@@ -48,15 +48,15 @@
     <Reference Include="System" />
     <Reference Include="TerrariaServer, Version=1.15.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Downloads\Tshock api 1.17\TerrariaServer.exe</HintPath>
+      <HintPath>..\..\..\..\..\..\..\CubiV\References\TerrariaServer.exe</HintPath>
     </Reference>
     <Reference Include="TShockAPI, Version=4.2.6.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Downloads\Tshock api 1.17\ServerPlugins\TShockAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\CubiV\References\TShockAPI.dll</HintPath>
     </Reference>
     <Reference Include="Wolfje.Plugins.SEconomy, Version=1.0.16.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Downloads\Wolfje Plugins\Wolfje.Plugins.SEconomy.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\CubiV\References\Wolfje.Plugins.SEconomy.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
