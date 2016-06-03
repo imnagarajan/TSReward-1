@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace TSREWARD
 {
-    [ApiVersion(1, 22)]
+    [ApiVersion(1, 23)]
     public class TSReward : TerrariaPlugin
     {
         public static Config config;
@@ -42,8 +42,8 @@ namespace TSREWARD
             Commands.ChatCommands.Add(new Command("tsreward.reload", Reload_Config, "tsreload"));
             ReadConfig();
             Timer.Interval = 1000 * config.IntervalInSeconds;
+            Timer.Elapsed += Timer_Elapsed;
             Timer.Enabled = config.ShowIntervalMessage;
-            Timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer_Elapsed);
         }
 
         void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -62,8 +62,12 @@ namespace TSREWARD
         {
             if (disposing)
             {
+                if (Timer.Enabled)
+                {
+                    Timer.Stop();
+                    Timer.Elapsed -= Timer_Elapsed;
+                }
             }
-            base.Dispose(disposing);
         }
 
         private void Reward(CommandArgs args)
@@ -108,7 +112,7 @@ namespace TSREWARD
                             {
                                 if (SEconomyPlugin.Instance != null)
                                 {
-                                    IBankAccount Server = SEconomyPlugin.Instance.GetBankAccount(TSServerPlayer.Server.UserID);
+                                    IBankAccount Server = SEconomyPlugin.Instance.GetBankAccount(TSServerPlayer.Server.User.ID);
                                     IBankAccount Player = SEconomyPlugin.Instance.GetBankAccount(args.Player.Index);
                                     Server.TransferToAsync(Player, config.SEconomyReward, config.AnnounceOnReceive ? BankAccountTransferOptions.AnnounceToReceiver : BankAccountTransferOptions.SuppressDefaultAnnounceMessages, "voting on terraria-servers.com", "Voted on terraria-servers.com");
 
@@ -181,7 +185,7 @@ namespace TSREWARD
 
         public class Config
         {
-            public string[,] ServerKey = new string[,] { {"7777","key1" } , {"7778","key2" } };
+            public string[,] ServerKey = new string[,] { { TShock.Config.ServerPort.ToString(), "key1" } };
             public int SEconomyReward = 1000;
             public bool AnnounceOnReceive = true;
             public string[] Commands = new string[]{ 
