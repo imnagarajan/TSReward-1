@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Terraria;
 using TShockAPI;
 using TerrariaApi.Server;
@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace TSREWARD
 {
-    [ApiVersion(1, 20)]
+    [ApiVersion(1, 23)]
     public class TSReward : TerrariaPlugin
     {
         public static Config config;
@@ -42,8 +42,8 @@ namespace TSREWARD
             Commands.ChatCommands.Add(new Command("tsreward.reload", Reload_Config, "tsreload"));
             ReadConfig();
             Timer.Interval = 1000 * config.IntervalInSeconds;
+            Timer.Elapsed += Timer_Elapsed;
             Timer.Enabled = config.ShowIntervalMessage;
-            Timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer_Elapsed);
         }
 
         void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -62,8 +62,12 @@ namespace TSREWARD
         {
             if (disposing)
             {
+                if (Timer.Enabled)
+                {
+                    Timer.Stop();
+                    Timer.Elapsed -= Timer_Elapsed;
+                }
             }
-            base.Dispose(disposing);
         }
 
         private void Reward(CommandArgs args)
@@ -73,9 +77,19 @@ namespace TSREWARD
                 args.Player.SendErrorMessage("You need to be logged in to use this command!");
                 return;
             }
+            if (args.Parameters.Count < 1)
+            {
+                args.Player.SendErrorMessage("Invalid syntax! Proper syntax: {0}reward <port number>", TShock.Config.CommandSpecifier);
+                return;
+            }
+            if (getKey(args.Parameters[0]) == "npl")
+            {
+                args.Player.SendErrorMessage("Port {0} is not on the list!", args.Parameters[0]);
+                return;
+            }
             Thread t = new Thread(() =>
                 {
-                    switch (CheckVote(args.Player.Name))
+                    switch (CheckVote(args.Player.Name , args.Parameters[0]))
                     {
                         case Response.InvalidServerKey:
                             args.Player.SendErrorMessage("The server key is incorrect! Please contact an administrator.");
@@ -94,11 +108,11 @@ namespace TSREWARD
                             for (int i = 0; i < config.OnRewardClaimMessage.Text.Length; i++)
                                 args.Player.SendMessage(config.OnRewardClaimMessage.Text[i], config.OnRewardClaimMessage.GetColor());
 
-                            if (SetAsClaimed(args.Player.Name))
+                            if (SetAsClaimed(args.Player.Name, args.Parameters[0]))
                             {
                                 if (SEconomyPlugin.Instance != null)
                                 {
-                                    IBankAccount Server = SEconomyPlugin.Instance.GetBankAccount(TSServerPlayer.Server.UserID);
+                                    IBankAccount Server = SEconomyPlugin.Instance.GetBankAccount(TSServerPlayer.Server.User.ID);
                                     IBankAccount Player = SEconomyPlugin.Instance.GetBankAccount(args.Player.Index);
                                     Server.TransferToAsync(Player, config.SEconomyReward, config.AnnounceOnReceive ? BankAccountTransferOptions.AnnounceToReceiver : BankAccountTransferOptions.SuppressDefaultAnnounceMessages, "voting on terraria-servers.com", "Voted on terraria-servers.com");
 
@@ -114,11 +128,11 @@ namespace TSREWARD
 
         }
 
-        public Response CheckVote(string Username)
+        public Response CheckVote(string Username , string port)
         {
             try
             {
-                string Res = wc.DownloadString(string.Format("http://terraria-servers.com/api/?object=votes&element=claim&key={0}&username={1}", config.ServerKey, Username));
+                string Res = wc.DownloadString(string.Format("http://terraria-servers.com/api/?object=votes&element=claim&key={0}&username={1}", getKey(port), Username));
                 if (Res.Contains("incorrect server key"))
                     return Response.InvalidServerKey;
                 else
@@ -127,9 +141,9 @@ namespace TSREWARD
             catch { return Response.Error; }
         }
 
-        public bool SetAsClaimed(string Username)
+        public bool SetAsClaimed(string Username, string port)
         {
-            return wc.DownloadString(string.Format("http://terraria-servers.com/api/?action=post&object=votes&element=claim&key={0}&username={1}", config.ServerKey, Username)) == "1";
+            return wc.DownloadString(string.Format("http://terraria-servers.com/api/?action=post&object=votes&element=claim&key={0}&username={1}", getKey(port), Username)) == "1";
         }
 
         public enum Response
@@ -171,7 +185,7 @@ namespace TSREWARD
 
         public class Config
         {
-            public string ServerKey = "ServerKeyGoesHere";
+            public string[,] ServerKey = new string[,] { { TShock.Config.ServerPort.ToString(), "key1" } };
             public int SEconomyReward = 1000;
             public bool AnnounceOnReceive = true;
             public string[] Commands = new string[]{ 
@@ -257,6 +271,15 @@ namespace TSREWARD
                 Timer.Enabled = config.ShowIntervalMessage;
                 args.Player.SendMessage("TSReward config reloaded sucessfully.", Color.Green);
             }
+        }
+        public string getKey(string port)
+        {
+            for(int i = 0; i < config.ServerKey.GetLength(0); i++)
+            {
+                if (config.ServerKey[i, 0] == port)
+                    return config.ServerKey[i, 1];
+            }
+            return "npl";
         }
     }
 }
